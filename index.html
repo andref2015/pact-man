@@ -23,8 +23,21 @@
       color: white;
       padding: 22px 24px;
     }
-    header h1 { font-size: 18px; font-weight: 600; margin-bottom: 3px; }
-    header p  { font-size: 15px; opacity: 0.65; }
+    header h1 { font-size: 32px; font-weight: 300; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* -- Main layout -- */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .chat-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
 
     /* -- Chat -- */
     .chat {
@@ -37,43 +50,93 @@
       background: #ffffff;
     }
 
+    /* -- Sidebar -- */
+    .sidebar {
+      width: 400px;
+      flex-shrink: 0;
+      background: #F3F4F5;
+      border-left: 1px solid #e0e2e4;
+      overflow-y: auto;
+      padding: 20px 18px;
+      color: #333;
+    }
+    .sidebar h3 {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #D09047;
+      margin-bottom: 14px;
+    }
+    .sidebar table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .sidebar th {
+      text-align: left;
+      font-weight: 600;
+      color: #7D97A5;
+      padding: 6px 6px;
+      border-bottom: 1px solid rgba(125,151,165,0.2);
+    }
+    .sidebar td {
+      padding: 5px 6px;
+      border-bottom: 1px solid rgba(125,151,165,0.08);
+      vertical-align: top;
+    }
+    .sidebar .term-header td {
+      padding-top: 12px;
+      font-weight: 600;
+      color: #D09047;
+    }
+    .sidebar .no-deal {
+      color: #e05555;
+      font-weight: 600;
+    }
+
     .message {
       display: flex;
-      gap: 10px;
-      max-width: 88%;
+      flex-direction: column;
+      max-width: 85%;
     }
     .message.bot  { align-self: flex-start; }
-    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message.user { align-self: flex-end; align-items: flex-end; }
 
-    .avatar {
-      width: 34px; height: 34px;
+    .msg-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .msg-label .avatar {
+      width: 22px; height: 22px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
+      font-size: 10px;
       flex-shrink: 0;
-      font-weight: 600;
       color: white;
+      background: #092430;
     }
-    .message.bot  .avatar { background: #D09047; }
-    .message.user .avatar { background: #7D97A5; }
 
     .bubble {
-      padding: 10px 14px;
-      border-radius: 14px;
+      padding: 12px 16px;
       font-size: 15px;
       line-height: 1.55;
+      color: #333;
     }
     .message.bot .bubble {
-      background: #f5f5f5;
-      border-left: 3px solid #d0d0d0;
-      border-radius: 4px;
-      color: #333333;
+      background: #f7f7f8;
+      border: 1px solid #e8e8ea;
+      border-radius: 4px 16px 16px 16px;
     }
     .message.user .bubble {
-      background: #e8f0f4;
-      border-left: 3px solid #7D97A5;
-      border-radius: 4px;
-      color: #333333;
+      background: #092430;
+      color: #fff;
+      border-radius: 16px 4px 16px 16px;
     }
 
     /* Typing indicator */
@@ -116,7 +179,7 @@
       font-size: 15px;
       font-family: inherit;
       background: transparent;
-      color: #c0cdd4;
+      color: #333;
       resize: none;
       min-height: 28px;
       max-height: 120px;
@@ -130,7 +193,7 @@
       height: 36px;
       border-radius: 50%;
       border: none;
-      background: #D09047;
+      background: #092430;
       color: white;
       display: flex;
       align-items: center;
@@ -141,26 +204,65 @@
       padding: 0;
     }
     .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .send-btn:not(:disabled):hover { background: #b87a38; }
+    .send-btn:not(:disabled):hover { background: #0f3344; }
     .send-btn svg { width: 18px; height: 18px; }
   </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>Pact-Man — Series A Negotiation</h1>
-      <p>You are the <strong>VC investor</strong>. Negotiate with the founder in natural language.</p>
+      <h1>Pact-Man</h1>
     </div>
   </header>
 
-  <div class="chat" id="chat"></div>
+  <div class="main">
+    <div class="chat-col">
+      <div class="chat" id="chat"></div>
+      <div class="input-area">
+        <div class="input-bar">
+          <textarea id="userInput" rows="1" placeholder="Type your message..." onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <div class="input-area">
-    <div class="input-bar">
-      <textarea id="userInput" rows="1" placeholder="Type your message..." onkeydown="handleKey(event)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-      </button>
+    <div class="sidebar">
+      <h3>Your Score Sheet (VC)</h3>
+      <table>
+        <tr><th>Option</th><th>Points</th></tr>
+        <tr class="term-header"><td colspan="2">#1: VC Equity %</td></tr>
+        <tr><td>25% or less</td><td class="no-deal">No Deal</td></tr>
+        <tr><td>26 - 34%</td><td>2</td></tr>
+        <tr><td>35 - 39%</td><td>3</td></tr>
+        <tr><td>40 - 45%</td><td>6</td></tr>
+        <tr><td>46 - 49%</td><td>9</td></tr>
+        <tr><td>50%</td><td>11</td></tr>
+        <tr><td>51 - 59%</td><td>15</td></tr>
+        <tr><td>60 - 69%</td><td>18</td></tr>
+        <tr><td>70% or more</td><td>20</td></tr>
+        <tr class="term-header"><td colspan="2">#2: Type of Stock</td></tr>
+        <tr><td>Common</td><td>0</td></tr>
+        <tr><td>Convertible Preferred</td><td>8</td></tr>
+        <tr><td>Redeemable Preferred</td><td>12</td></tr>
+        <tr class="term-header"><td colspan="2">#3: VC Board Members</td></tr>
+        <tr><td>0 members</td><td>0</td></tr>
+        <tr><td>1 member</td><td>3</td></tr>
+        <tr><td>2 members</td><td>5</td></tr>
+        <tr><td>3 members</td><td>7</td></tr>
+        <tr><td>More than 3</td><td>10</td></tr>
+        <tr class="term-header"><td colspan="2">#4: Founder Vesting</td></tr>
+        <tr><td>Less than 4 years</td><td class="no-deal">No Deal</td></tr>
+        <tr><td>4 years</td><td>8</td></tr>
+        <tr><td>5 years</td><td>12</td></tr>
+        <tr><td>More than 5 years</td><td>14</td></tr>
+        <tr class="term-header"><td colspan="2">#5: CEO Replacement</td></tr>
+        <tr><td>No provision</td><td class="no-deal">No Deal</td></tr>
+        <tr><td>Conservative Projections</td><td>6</td></tr>
+        <tr><td>Moderate Projections</td><td>10</td></tr>
+        <tr><td>Aggressive Projections</td><td>16</td></tr>
+      </table>
     </div>
   </div>
 
@@ -182,9 +284,12 @@
     const wrapper = document.createElement('div');
     wrapper.className = `message ${role}`;
 
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.innerHTML = role === 'bot' ? '<i class="icon-rocket"></i>' : '';
+    if (role === 'bot') {
+      const label = document.createElement('div');
+      label.className = 'msg-label';
+      label.innerHTML = '<div class="avatar"><i class="icon-rocket"></i></div> Founder';
+      wrapper.appendChild(label);
+    }
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
@@ -194,7 +299,6 @@
       bubble.appendChild(document.createTextNode(line));
     });
 
-    if (role === 'bot') wrapper.appendChild(avatar);
     wrapper.appendChild(bubble);
     chat.appendChild(wrapper);
     chat.scrollTop = chat.scrollHeight;
@@ -206,7 +310,7 @@
     wrapper.className = 'message bot';
     wrapper.id = 'typing';
     wrapper.innerHTML =
-      '<div class="avatar"><i class="icon-rocket"></i></div>' +
+      '<div class="msg-label"><div class="avatar"><i class="icon-rocket"></i></div> Founder</div>' +
       '<div class="bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
     chat.appendChild(wrapper);
     chat.scrollTop = chat.scrollHeight;

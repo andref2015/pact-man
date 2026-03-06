@@ -51,4 +51,4 @@ Discuss significant coding decisions with the user before implementing them. Thi
 
 ## Git Workflow
 
-Always commit AND push together after completing a significant change or feature. Don't commit minor changes (e.g., removing a progress bar).
+Always commit AND push together after completing a significant change or feature. Don't commit minor changes (e.g., removing a progress bar). Wait for the user to confirm they are satisfied with changes before committing — do not commit after each edit.
