@@ -95,6 +95,63 @@
       font-weight: 600;
     }
 
+    /* -- Deal Tracker -- */
+    .tracker-term {
+      padding: 8px 6px;
+      border-bottom: 1px solid rgba(125,151,165,0.12);
+    }
+    .tracker-term-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tracker-positions {
+      font-size: 12px;
+      color: #555;
+      margin-top: 3px;
+      padding-left: 14px;
+    }
+    .tracker-points {
+      margin-left: auto;
+      font-weight: 600;
+      color: #4CAF50;
+      font-size: 12px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .status-dot.open { background: #ccc; }
+    .status-dot.discussed { background: #D09047; }
+    .status-dot.tentatively_agreed { background: #4CAF50; }
+    .tracker-score-bar {
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: #e8eef1;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+    }
+    .tracker-banner {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+    .tracker-banner.deal { background: #d4edda; color: #155724; display: block; }
+    .tracker-banner.walked { background: #f8d7da; color: #721c24; display: block; }
+
     .message {
       display: flex;
       flex-direction: column;
@@ -229,7 +286,14 @@
     </div>
 
     <div class="sidebar">
-      <h3>Your Score Sheet (VC)</h3>
+      <h3>Deal Tracker</h3>
+      <div id="tracker">
+        <div style="color: #7D97A5; font-size: 13px; padding: 8px 0;">Waiting for negotiation to begin...</div>
+      </div>
+      <div class="tracker-score-bar">Your Score: <span id="vcScoreDisplay">0</span> pts <span style="color:#7D97A5; font-weight:400;">/ 30 BATNA</span></div>
+      <div id="trackerBanner" class="tracker-banner"></div>
+
+      <h3 style="margin-top: 22px;">Your Score Sheet (VC)</h3>
       <table>
         <tr><th>Option</th><th>Points</th></tr>
         <tr class="term-header"><td colspan="2">#1: VC Equity %</td></tr>
@@ -270,6 +334,121 @@
   // Conversation history sent to the API
   let conversationHistory = [];
   let sending = false;
+  let negotiationState = null;
+
+  const TERM_LABELS = {
+    vc_equity_percentage: 'VC Equity %',
+    type_of_stock: 'Stock Type',
+    vc_board_members: 'Board Members',
+    founder_vesting: 'Founder Vesting',
+    ceo_replacement: 'CEO Replacement',
+  };
+
+  function getVCPoints(term, value) {
+    if (!value) return null;
+    switch (term) {
+      case 'vc_equity_percentage': {
+        const p = parseFloat(value);
+        if (isNaN(p)) return null;
+        if (p <= 25) return 'No Deal';
+        if (p <= 34) return 2; if (p <= 39) return 3; if (p <= 45) return 6;
+        if (p <= 49) return 9; if (p === 50) return 11; if (p <= 59) return 15;
+        if (p <= 69) return 18; return 20;
+      }
+      case 'type_of_stock': {
+        const v = value.toLowerCase();
+        if (v.includes('common')) return 0; if (v.includes('convertible')) return 8;
+        if (v.includes('redeemable')) return 12; return null;
+      }
+      case 'vc_board_members': {
+        const n = parseInt(value);
+        if (isNaN(n)) return null;
+        if (n === 0) return 0; if (n === 1) return 3; if (n === 2) return 5;
+        if (n === 3) return 7; return 10;
+      }
+      case 'founder_vesting': {
+        const v = value.toLowerCase();
+        if (v === 'none' || v === 'no vesting' || v === '0') return 'No Deal';
+        const y = parseFloat(value);
+        if (isNaN(y)) return null;
+        if (y < 4) return 'No Deal'; if (y === 4) return 8; if (y === 5) return 12; return 14;
+      }
+      case 'ceo_replacement': {
+        const v = value.toLowerCase();
+        if (v.includes('no provision') || v === 'none') return 'No Deal';
+        if (v.includes('conservative')) return 6; if (v.includes('moderate')) return 10;
+        if (v.includes('aggressive')) return 16; return null;
+      }
+    }
+    return null;
+  }
+
+  function updateTracker(state) {
+    negotiationState = state;
+    const tracker = document.getElementById('tracker');
+    const banner = document.getElementById('trackerBanner');
+
+    if (!state || !state.terms) {
+      tracker.innerHTML = '<div style="color: #7D97A5; font-size: 13px; padding: 8px 0;">Waiting for negotiation to begin...</div>';
+      return;
+    }
+
+    let html = '';
+    for (const [key, label] of Object.entries(TERM_LABELS)) {
+      const t = state.terms[key];
+      const status = t?.status || 'open';
+
+      html += '<div class="tracker-term">';
+      html += `<div class="tracker-term-name"><span class="status-dot ${status}"></span>${label}`;
+
+      if (status === 'tentatively_agreed' && t.agreed_value) {
+        const pts = getVCPoints(key, t.agreed_value);
+        if (pts === 'No Deal') {
+          html += '<span class="tracker-points" style="color:#e05555;">No Deal</span>';
+        } else if (pts !== null) {
+          html += `<span class="tracker-points">+${pts}</span>`;
+        }
+      }
+      html += '</div>';
+
+      if (status === 'discussed') {
+        let pos = '';
+        if (t.vc_position) pos += `You: ${t.vc_position}`;
+        if (t.founder_position) { if (pos) pos += ' &middot; '; pos += `Founder: ${t.founder_position}`; }
+        if (pos) html += `<div class="tracker-positions">${pos}</div>`;
+      } else if (status === 'tentatively_agreed' && t.agreed_value) {
+        html += `<div class="tracker-positions" style="color:#4CAF50;">Agreed: ${t.agreed_value}</div>`;
+      } else {
+        html += '<div class="tracker-positions" style="color:#aaa;">Not discussed</div>';
+      }
+
+      html += '</div>';
+    }
+    tracker.innerHTML = html;
+
+    // Update score
+    const vcScore = state.vc_score || 0;
+    const scoreEl = document.getElementById('vcScoreDisplay');
+    scoreEl.textContent = vcScore;
+    if (state.vc_no_deal) {
+      scoreEl.style.color = '#e05555';
+    } else if (vcScore >= 30) {
+      scoreEl.style.color = '#4CAF50';
+    } else {
+      scoreEl.style.color = '#333';
+    }
+
+    // Banner
+    banner.className = 'tracker-banner';
+    banner.style.display = 'none';
+    if (state.overall_status === 'deal_reached') {
+      banner.textContent = 'Deal Reached!';
+      banner.className = 'tracker-banner deal';
+    } else if (state.overall_status === 'walked_away') {
+      banner.textContent = 'Negotiation Ended — No Deal';
+      banner.className = 'tracker-banner walked';
+    }
+  }
 
   const BOT_INTRO =
     "Hey! We're raising a Series A for our space tech startup and I couldn't be more fired up about the mission.\n\n" +
@@ -358,7 +537,7 @@
       const res = await fetch('/api/negotiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: conversationHistory }),
+        body: JSON.stringify({ messages: conversationHistory, state: negotiationState }),
       });
       const data = await res.json();
       hideTyping();
@@ -366,6 +545,8 @@
       const reply = data.message || 'Something went wrong. Could you try again?';
       addMessage('bot', reply);
       conversationHistory.push({ role: 'assistant', content: reply });
+
+      if (data.state) updateTracker(data.state);
     } catch (err) {
       hideTyping();
       addMessage('bot', 'Something went wrong. Please try again.');
