@@ -56,7 +56,12 @@ Some options are **No Deal** for one side, meaning the other party will never ac
 | | Moderate Projections: | 10 |
 | | Aggressive Projections: | 16 |
 
-### Founder Score Sheet (AI's secret scoring — revealed here for reference)
+### Founder Score Sheet
+
+The AI founder has its own secret scoring — the points are different from yours, which is what makes the negotiation interesting. Revealed here for reference.
+
+<details>
+<summary><b>View founder score sheet</b></summary>
 
 | Term | Options | Points |
 | :--- | :--- | :--- |
@@ -83,6 +88,8 @@ Some options are **No Deal** for one side, meaning the other party will never ac
 | | Moderate Projections: | 7 |
 | | Conservative Projections: | 14 |
 | | No provision: | 19 |
+
+</details>
 
 ## The AI Judge
 
