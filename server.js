@@ -13,6 +13,7 @@ if (fs.existsSync(envPath)) {
 }
 
 const handler = require('./api/negotiate');
+const judgeHandler = require('./api/judge');
 
 const PORT = 3000;
 
@@ -25,12 +26,13 @@ function makeRes(raw) {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/negotiate') {
+  if (req.method === 'POST' && (req.url === '/api/negotiate' || req.url === '/api/judge')) {
+    const h = req.url === '/api/judge' ? judgeHandler : handler;
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
       try { req.body = JSON.parse(body); } catch { req.body = {}; }
-      await handler(req, makeRes(res));
+      await h(req, makeRes(res));
     });
     return;
   }
@@ -53,7 +55,16 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
-  console.log(`Running at ${url}`);
+  console.log(`
+\x1b[33m ██████╗  █████╗  ██████╗████████╗       ███╗   ███╗ █████╗ ███╗   ██╗
+ ██╔══██╗██╔══██╗██╔════╝╚══██╔══╝       ████╗ ████║██╔══██╗████╗  ██║
+ ██████╔╝███████║██║        ██║   █████╗ ██╔████╔██║███████║██╔██╗ ██║
+ ██╔═══╝ ██╔══██║██║        ██║   ╚════╝ ██║╚██╔╝██║██╔══██║██║╚██╗██║
+ ██║     ██║  ██║╚██████╗   ██║          ██║ ╚═╝ ██║██║  ██║██║ ╚████║
+ ╚═╝     ╚═╝  ╚═╝ ╚═════╝   ╚═╝          ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝\x1b[0m
+
+  \x1b[36m🕹️  Running at ${url}\x1b[0m
+`);
   const open = process.platform === 'win32' ? `start ${url}`
              : process.platform === 'darwin' ? `open ${url}`
              : `xdg-open ${url}`;

@@ -209,6 +209,14 @@
       border-radius: 16px 4px 16px 16px;
     }
 
+    .bubble ul {
+      margin: 4px 0;
+      padding-left: 20px;
+    }
+    .bubble li {
+      margin: 2px 0;
+    }
+
     /* Typing indicator */
     .typing-dot {
       display: inline-block;
@@ -985,7 +993,7 @@
   }
 
   const BOT_INTRO =
-    "Hey! We're raising a Series A for our space tech startup and I couldn't be more fired up about the mission.\n\n" +
+    "Hey! We're raising a Series A for our aerospace startup and I couldn't be more fired up about the mission.\n\n" +
     "We've got two payload contracts signed, a launch window in 18 months, and a team of ex-NASA engineers.\n\n" +
     "I'm open to discussing equity split, stock type, board representation, vesting, and CEO provisions. What are you thinking for terms?";
 
@@ -1007,10 +1015,30 @@
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
 
-    text.split('\n').forEach((line, i) => {
-      if (i > 0) bubble.appendChild(document.createElement('br'));
-      bubble.appendChild(document.createTextNode(line));
-    });
+    if (role === 'bot') {
+      const lines = text.split('\n').map(l =>
+        l.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      );
+      let html = '', inList = false;
+      for (const line of lines) {
+        if (/^\* /.test(line)) {
+          if (!inList) { html += '<ul>'; inList = true; }
+          html += '<li>' + line.slice(2) + '</li>';
+        } else {
+          if (inList) { html += '</ul>'; inList = false; }
+          if (html) html += '<br>';
+          html += line;
+        }
+      }
+      if (inList) html += '</ul>';
+      bubble.innerHTML = html;
+    } else {
+      text.split('\n').forEach((line, i) => {
+        if (i > 0) bubble.appendChild(document.createElement('br'));
+        bubble.appendChild(document.createTextNode(line));
+      });
+    }
 
     wrapper.appendChild(bubble);
     chat.appendChild(wrapper);
@@ -1079,12 +1107,22 @@
       addMessage('bot', reply);
       conversationHistory.push({ role: 'assistant', content: reply });
 
-      if (data.state) {
-        if (data.state._judgeError) {
-          console.error('%c[Judge FAILED]', 'color:#e05555;font-weight:bold', data.state._judgeError);
-        }
-        updateTracker(data.state);
-      }
+      // Call judge in background to update deal tracker
+      fetch('/api/judge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversationHistory, state: negotiationState }),
+      })
+        .then(r => r.json())
+        .then(judgeData => {
+          if (judgeData.state) {
+            if (judgeData.state._judgeError) {
+              console.error('%c[Judge FAILED]', 'color:#e05555;font-weight:bold', judgeData.state._judgeError);
+            }
+            updateTracker(judgeData.state);
+          }
+        })
+        .catch(err => console.error('Judge call failed:', err));
     } catch (err) {
       hideTyping();
       addMessage('bot', 'Something went wrong. Please try again.');

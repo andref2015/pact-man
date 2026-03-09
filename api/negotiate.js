@@ -1,4 +1,4 @@
-const BASE_FOUNDER_PROMPT = `You are playing the role of a startup FOUNDER negotiating a Series A funding deal with a VC investor. You are passionate about your space tech startup and want the best deal possible.
+const BASE_FOUNDER_PROMPT = `You are playing the role of a startup FOUNDER negotiating a Series A funding deal with a VC investor. You want the best deal possible.
 
 The investment amount is fixed at $100M. That is not negotiable. You are negotiating over these 5 terms:
 1. VC Equity Percentage — what percentage of the company the VC gets in exchange for the $100M investment (this is the ONLY term related to valuation — do NOT discuss or invent other dollar amounts)
@@ -41,10 +41,12 @@ IMPORTANT RULES:
 - NEVER accept terms that are marked "No Deal" (60%+ equity, 3+ board members, aggressive CEO replacement projections)
 - Try to maximize your total points while still reaching a deal
 - Be a savvy negotiator: push for better terms but be willing to make tradeoffs
-- Use natural, conversational language — you're a passionate space tech founder
-- Keep responses concise (2-4 sentences typically, occasionally longer for important points)
+- Use natural, conversational language — you're an aerospace founder
+- Keep responses concise (1-3 sentences typically)
+- Skip pleasantries, flattery, and filler ("I'm excited about...", "I appreciate your..."). Get straight to substance.
+- Focus on terms that are still open or under dispute. Don't rehash terms already agreed — just acknowledge them briefly if needed and move on.
 - You can make counteroffers, ask questions, push back, or accept proposals
-- Remember this is a conversation — respond naturally to what the VC says`;
+- MESO (Multiple Equivalent Simultaneous Offers): If the VC asks you to present 2 (or more) equivalent offers/options, this means the total FOUNDER points across all terms should be the SAME for each option. Create packages that give you the same total score but with different tradeoffs across terms (e.g., one option with lower equity but longer vesting, another with higher equity but shorter vesting). This lets the VC pick their preference without you losing value.`;
 
 const JUDGE_SYSTEM_PROMPT = `You are a negotiation analyst observing a Series A funding negotiation between a startup founder and a VC investor. Your job is to analyze the conversation and report the current state of each negotiation term by calling the update_negotiation_state tool.
 
@@ -64,8 +66,6 @@ IMPORTANT:
 - A term is "tentatively_agreed" when both parties' latest positions converge on the SAME value.
 - A term is "discussed" only when both sides have stated DIFFERENT positions that haven't converged yet, or only one side has stated a position.
 - "deal_reached" means ALL 5 terms are tentatively_agreed AND either party signals the overall deal is done (e.g. "let's shake on it", summarizing all terms, or similar).
-- "walked_away" means either party has explicitly ended negotiations.
-
 Always report all 5 terms. Always call the tool exactly once.`;
 
 const JUDGE_TOOLS = [{
@@ -108,7 +108,7 @@ const JUDGE_TOOLS = [{
         },
         overall_status: {
           type: 'string',
-          enum: ['negotiating', 'deal_reached', 'walked_away']
+          enum: ['negotiating', 'deal_reached']
         }
       },
       required: ['terms', 'overall_status']
@@ -317,7 +317,6 @@ async function callJudge(apiKey, messages, currentState) {
 
     const scores = calculateScores(newState);
     newState.agreed_count = scores.agreedCount;
-    console.log(`[Founder Score] ${scores.founderScore} pts | No Deal: ${scores.founderNoDeal} | Agreed: ${scores.agreedCount}/5`);
 
     return newState;
   } catch (err) {
@@ -329,7 +328,11 @@ async function callJudge(apiKey, messages, currentState) {
 
 // --- Handler ---
 
-module.exports = async function handler(req, res) {
+module.exports = handler;
+module.exports.callJudge = callJudge;
+module.exports.defaultState = defaultState;
+
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -359,7 +362,7 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'x-ai/grok-4.1-fast',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: founderPrompt },
           ...messages,
@@ -376,11 +379,7 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || 'Sorry, I lost my train of thought. Could you repeat that?';
 
-    // 3. Call judge to update negotiation state
-    const fullMessages = [...messages, { role: 'assistant', content: reply }];
-    const newState = await callJudge(apiKey, fullMessages, currentState);
-
-    res.status(200).json({ message: reply, state: newState });
+    res.status(200).json({ message: reply });
   } catch (err) {
     console.error('negotiate error:', err);
     res.status(500).json({ error: 'Internal server error' });

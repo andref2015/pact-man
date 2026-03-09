@@ -8,7 +8,7 @@
 
 ## What is Pact-Man?
 
-Pact-Man is an AI-powered negotiation game. You play as a **Venture Capitalist** proposing term sheets for a Series A investment, while an **AI founder agent** (powered by Grok LLM via OpenRouter) negotiates back. Both sides are trying to maximize their score across 5 deal terms — but your score sheets are different, so you'll need to figure out where to push and where to concede.
+Pact-Man is an AI-powered negotiation game. You play as a **Venture Capitalist** proposing term sheets for a Series A investment, while an **AI founder agent** (powered by Gemini 3 Flash via OpenRouter) negotiates back. Both sides are trying to maximize their score across 5 deal terms — but your score sheets are different, so you'll need to figure out where to push and where to concede.
 
 The investment amount is fixed at **$100M** — what you're negotiating is everything else.
 
@@ -93,12 +93,12 @@ The AI founder has its own secret scoring — the points are different from your
 
 ## The AI Judge
 
-After every message exchange, a separate **AI judge** (also Grok LLM, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the founder agent to self-report accurately.
+After every message exchange, a separate **AI judge** (Grok 4.1 Fast, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the founder agent to self-report accurately.
 
 ## Stack
 
 - **Frontend:** Plain HTML/CSS/JS — no framework, no build step
 - **Backend:** Vercel serverless function (Node.js) — the founder agent and judge both live in `api/negotiate.js`
-- **LLM:** Grok via OpenRouter
+- **LLM:** Gemini 3 Flash (founder agent) + Grok 4.1 Fast (judge) via OpenRouter
 - **Deploy:** Vercel
 
