@@ -27,7 +27,7 @@
     }
     header > div { display: flex; align-items: center; gap: 12px; }
     header h1 { font-size: 32px; font-weight: 300; text-transform: uppercase; letter-spacing: 0.03em; }
-    header .logo { height: 36px; transform: translateY(1px); }
+    header .logo { height: 37px; }
 
     /* -- Main layout -- */
     .main {
@@ -388,12 +388,17 @@
       background: #092430;
       color: #fff;
       overflow-y: auto;
-      padding: 48px 24px 60px;
+      padding: 28px 24px 60px;
     }
     .intro-banner {
-      max-width: 520px;
+      max-width: 120px;
       width: 100%;
       margin-bottom: 36px;
+      animation: spinIn 3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes spinIn {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(1800deg); }
     }
     .intro-content {
       max-width: 640px;
@@ -401,7 +406,7 @@
     }
     .intro-content h2 {
       font-size: 22px;
-      font-weight: 300;
+      font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #D09047;
@@ -458,11 +463,45 @@
       font-weight: 600;
     }
 
+    .intro-details {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      margin-top: 14px;
+      margin-bottom: 32px;
+    }
+    .intro-details summary {
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .intro-details summary::-webkit-details-marker { display: none; }
+    .intro-details summary::before {
+      content: '\25B6';
+      font-size: 10px;
+      color: #D09047;
+      transition: transform 0.2s;
+    }
+    .intro-details[open] summary::before {
+      transform: rotate(90deg);
+    }
+    .intro-details[open] summary {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .intro-details .intro-table {
+      margin: 0;
+      padding: 4px 12px 8px;
+    }
     .intro-note {
       font-size: 13px;
       color: rgba(255,255,255,0.4);
-      margin-top: 6px;
-      margin-bottom: 32px;
+      margin: 16px 18px 16px;
     }
 
     .start-btn {
@@ -488,48 +527,51 @@
 </head>
 <body>
   <div class="intro" id="intro">
-    <img src="/images/banner.png" alt="Pact-Man" class="intro-banner">
+    <img src="/images/logo.png" alt="Pact-Man" class="intro-banner">
     <div class="intro-content">
       <h2>What is Pact-Man?</h2>
       <p>Pact-Man is an AI-powered negotiation game. You play as a <strong>Venture Capitalist</strong> proposing term sheets for a <strong>Series A investment</strong> in a aerospace startup, while an AI founder negotiates back.</p>
       <p>The investment amount is fixed at <span class="highlight">$100M</span> &mdash; what you're negotiating is everything else. Both sides are trying to maximize their score across <strong>5 deal terms</strong>, but your score sheets are different. You'll need to figure out where to push and where to concede.</p>
       <p>Both parties have a <strong>BATNA (walk-away threshold) of 30 points</strong> &mdash; if your final score is below that, you're better off with no deal.</p>
 
-      <h2>Your Score Sheet</h2>
-      <table class="intro-table">
-        <tr><th>Option</th><th>Points</th></tr>
-        <tr class="term-header-row"><td colspan="2">#1: VC Equity Percentage</td></tr>
-        <tr><td>25% or less</td><td class="no-deal-cell">No Deal</td></tr>
-        <tr><td>26 - 34%</td><td>2</td></tr>
-        <tr><td>35 - 39%</td><td>3</td></tr>
-        <tr><td>40 - 45%</td><td>6</td></tr>
-        <tr><td>46 - 49%</td><td>9</td></tr>
-        <tr><td>50%</td><td>11</td></tr>
-        <tr><td>51 - 59%</td><td>15</td></tr>
-        <tr><td>60 - 69%</td><td>18</td></tr>
-        <tr><td>70% or more</td><td>20</td></tr>
-        <tr class="term-header-row"><td colspan="2">#2: Type of Stock</td></tr>
-        <tr><td>Common</td><td>0</td></tr>
-        <tr><td>Convertible Preferred</td><td>8</td></tr>
-        <tr><td>Redeemable Preferred</td><td>12</td></tr>
-        <tr class="term-header-row"><td colspan="2">#3: VC Appointed Board Members</td></tr>
-        <tr><td>0 members</td><td>0</td></tr>
-        <tr><td>1 member</td><td>3</td></tr>
-        <tr><td>2 members</td><td>5</td></tr>
-        <tr><td>3 members</td><td>7</td></tr>
-        <tr><td>More than 3</td><td>10</td></tr>
-        <tr class="term-header-row"><td colspan="2">#4: Vesting of Founder's Shares</td></tr>
-        <tr><td>Less than 4 years</td><td class="no-deal-cell">No Deal</td></tr>
-        <tr><td>4 years</td><td>8</td></tr>
-        <tr><td>5 years</td><td>12</td></tr>
-        <tr><td>More than 5 years</td><td>14</td></tr>
-        <tr class="term-header-row"><td colspan="2">#5: CEO Replacement Provision</td></tr>
-        <tr><td>No provision</td><td class="no-deal-cell">No Deal</td></tr>
-        <tr><td>Conservative Projections</td><td>6</td></tr>
-        <tr><td>Moderate Projections</td><td>10</td></tr>
-        <tr><td>Aggressive Projections</td><td>16</td></tr>
-      </table>
-      <div class="intro-note">Some options are "No Deal" for the founder too &mdash; you'll need to discover those during negotiation.</div>
+      <p>Your score sheet below shows how many points each option is worth to you. No need to memorize it &mdash; you'll have access to it in the sidebar during the negotiation.</p>
+      <details class="intro-details">
+        <summary>View score sheet</summary>
+        <table class="intro-table">
+          <tr><th>Option</th><th>Points</th></tr>
+          <tr class="term-header-row"><td colspan="2">#1: VC Equity Percentage</td></tr>
+          <tr><td>25% or less</td><td class="no-deal-cell">No Deal</td></tr>
+          <tr><td>26 - 34%</td><td>2</td></tr>
+          <tr><td>35 - 39%</td><td>3</td></tr>
+          <tr><td>40 - 45%</td><td>6</td></tr>
+          <tr><td>46 - 49%</td><td>9</td></tr>
+          <tr><td>50%</td><td>11</td></tr>
+          <tr><td>51 - 59%</td><td>15</td></tr>
+          <tr><td>60 - 69%</td><td>18</td></tr>
+          <tr><td>70% or more</td><td>20</td></tr>
+          <tr class="term-header-row"><td colspan="2">#2: Type of Stock</td></tr>
+          <tr><td>Common</td><td>0</td></tr>
+          <tr><td>Convertible Preferred</td><td>8</td></tr>
+          <tr><td>Redeemable Preferred</td><td>12</td></tr>
+          <tr class="term-header-row"><td colspan="2">#3: VC Appointed Board Members</td></tr>
+          <tr><td>0 members</td><td>0</td></tr>
+          <tr><td>1 member</td><td>3</td></tr>
+          <tr><td>2 members</td><td>5</td></tr>
+          <tr><td>3 members</td><td>7</td></tr>
+          <tr><td>More than 3</td><td>10</td></tr>
+          <tr class="term-header-row"><td colspan="2">#4: Vesting of Founder's Shares</td></tr>
+          <tr><td>Less than 4 years</td><td class="no-deal-cell">No Deal</td></tr>
+          <tr><td>4 years</td><td>8</td></tr>
+          <tr><td>5 years</td><td>12</td></tr>
+          <tr><td>More than 5 years</td><td>14</td></tr>
+          <tr class="term-header-row"><td colspan="2">#5: CEO Replacement Provision</td></tr>
+          <tr><td>No provision</td><td class="no-deal-cell">No Deal</td></tr>
+          <tr><td>Conservative Projections</td><td>6</td></tr>
+          <tr><td>Moderate Projections</td><td>10</td></tr>
+          <tr><td>Aggressive Projections</td><td>16</td></tr>
+        </table>
+        <div class="intro-note">Some options are "No Deal" for the founder too &mdash; you'll need to discover those during negotiation.</div>
+      </details>
 
       <div style="text-align:center">
         <button class="start-btn" onclick="startGame()">Start Negotiation</button>
