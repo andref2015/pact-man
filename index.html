@@ -56,12 +56,12 @@
 
     /* -- Sidebar -- */
     .sidebar {
-      width: 340px;
+      width: 350px;
       flex-shrink: 0;
       background: #F3F4F5;
       border-left: 1px solid #e0e2e4;
       overflow-y: auto;
-      padding: 20px 18px;
+      padding: 14px 12px;
       color: #333;
     }
     .sidebar h3 {
@@ -125,10 +125,13 @@
     .sidebar tr.agreed-row td { background: rgba(76, 175, 80, 0.08); }
     .sidebar .legend {
       display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
       gap: 14px;
       font-size: 13px;
       color: #7D97A5;
       margin-bottom: 10px;
+      text-align: center;
     }
     .sidebar .legend span {
       display: flex;
@@ -375,17 +378,173 @@
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* -- Intro screen -- */
+    .intro {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #092430;
+      color: #fff;
+      overflow-y: auto;
+      padding: 48px 24px 60px;
+    }
+    .intro-banner {
+      max-width: 520px;
+      width: 100%;
+      margin-bottom: 36px;
+    }
+    .intro-content {
+      max-width: 640px;
+      width: 100%;
+    }
+    .intro-content h2 {
+      font-size: 22px;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #D09047;
+      margin-bottom: 16px;
+      margin-top: 32px;
+    }
+    .intro-content h2:first-child {
+      margin-top: 0;
+    }
+    .intro-content p {
+      font-size: 15px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 14px;
+    }
+    .intro-content strong {
+      color: #fff;
+    }
+    .intro-content .highlight {
+      color: #D09047;
+      font-weight: 600;
+    }
+
+    /* Intro score table */
+    .intro-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .intro-table th {
+      text-align: left;
+      font-weight: 600;
+      color: #7D97A5;
+      padding: 6px 10px;
+      border-bottom: 1px solid rgba(125,151,165,0.25);
+    }
+    .intro-table th:last-child { text-align: right; }
+    .intro-table td {
+      padding: 5px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+    }
+    .intro-table td:last-child { text-align: right; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .intro-table .term-header-row td {
+      padding-top: 16px;
+      font-weight: 600;
+      color: #D09047;
+      text-align: left;
+      border-bottom: 1px solid rgba(208,144,71,0.2);
+    }
+    .intro-table .no-deal-cell {
+      color: #e05555;
+      font-weight: 600;
+    }
+
+    .intro-note {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
+      margin-bottom: 32px;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 48px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: #D09047;
+      color: #fff;
+      border: none;
+      border-radius: 32px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .start-btn:hover { background: #b87a38; transform: scale(1.03); }
+    .start-btn:active { transform: scale(0.98); }
   </style>
 </head>
 <body>
-  <header>
+  <div class="intro" id="intro">
+    <img src="/images/banner.png" alt="Pact-Man" class="intro-banner">
+    <div class="intro-content">
+      <h2>What is Pact-Man?</h2>
+      <p>Pact-Man is an AI-powered negotiation game. You play as a <strong>Venture Capitalist</strong> proposing term sheets for a <strong>Series A investment</strong> in a aerospace startup, while an AI founder negotiates back.</p>
+      <p>The investment amount is fixed at <span class="highlight">$100M</span> &mdash; what you're negotiating is everything else. Both sides are trying to maximize their score across <strong>5 deal terms</strong>, but your score sheets are different. You'll need to figure out where to push and where to concede.</p>
+      <p>Both parties have a <strong>BATNA (walk-away threshold) of 30 points</strong> &mdash; if your final score is below that, you're better off with no deal.</p>
+
+      <h2>Your Score Sheet</h2>
+      <table class="intro-table">
+        <tr><th>Option</th><th>Points</th></tr>
+        <tr class="term-header-row"><td colspan="2">#1: VC Equity Percentage</td></tr>
+        <tr><td>25% or less</td><td class="no-deal-cell">No Deal</td></tr>
+        <tr><td>26 - 34%</td><td>2</td></tr>
+        <tr><td>35 - 39%</td><td>3</td></tr>
+        <tr><td>40 - 45%</td><td>6</td></tr>
+        <tr><td>46 - 49%</td><td>9</td></tr>
+        <tr><td>50%</td><td>11</td></tr>
+        <tr><td>51 - 59%</td><td>15</td></tr>
+        <tr><td>60 - 69%</td><td>18</td></tr>
+        <tr><td>70% or more</td><td>20</td></tr>
+        <tr class="term-header-row"><td colspan="2">#2: Type of Stock</td></tr>
+        <tr><td>Common</td><td>0</td></tr>
+        <tr><td>Convertible Preferred</td><td>8</td></tr>
+        <tr><td>Redeemable Preferred</td><td>12</td></tr>
+        <tr class="term-header-row"><td colspan="2">#3: VC Appointed Board Members</td></tr>
+        <tr><td>0 members</td><td>0</td></tr>
+        <tr><td>1 member</td><td>3</td></tr>
+        <tr><td>2 members</td><td>5</td></tr>
+        <tr><td>3 members</td><td>7</td></tr>
+        <tr><td>More than 3</td><td>10</td></tr>
+        <tr class="term-header-row"><td colspan="2">#4: Vesting of Founder's Shares</td></tr>
+        <tr><td>Less than 4 years</td><td class="no-deal-cell">No Deal</td></tr>
+        <tr><td>4 years</td><td>8</td></tr>
+        <tr><td>5 years</td><td>12</td></tr>
+        <tr><td>More than 5 years</td><td>14</td></tr>
+        <tr class="term-header-row"><td colspan="2">#5: CEO Replacement Provision</td></tr>
+        <tr><td>No provision</td><td class="no-deal-cell">No Deal</td></tr>
+        <tr><td>Conservative Projections</td><td>6</td></tr>
+        <tr><td>Moderate Projections</td><td>10</td></tr>
+        <tr><td>Aggressive Projections</td><td>16</td></tr>
+      </table>
+      <div class="intro-note">Some options are "No Deal" for the founder too &mdash; you'll need to discover those during negotiation.</div>
+
+      <div style="text-align:center">
+        <button class="start-btn" onclick="startGame()">Start Negotiation</button>
+      </div>
+    </div>
+  </div>
+
+  <header style="display:none" id="gameHeader">
     <div>
       <h1>Pact-Man</h1>
       <img src="/images/logo.png" alt="Pact-Man logo" class="logo">
     </div>
   </header>
 
-  <div class="main">
+  <div class="main" style="display:none" id="gameMain">
     <div class="chat-col">
       <div class="chat" id="chat"></div>
       <div class="input-area">
@@ -442,7 +601,7 @@
   </div>
 
   <div class="results" id="results">
-    <h2>Deal Complete</h2>
+    <h2>Deal Done!</h2>
     <div class="results-subtitle">Final scores vs. maximum achievable</div>
     <div class="results-charts">
       <div class="result-chart">
@@ -476,6 +635,13 @@
   let conversationHistory = [];
   let sending = false;
   let negotiationState = null;
+
+  function startGame() {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('gameHeader').style.display = '';
+    document.getElementById('gameMain').style.display = 'flex';
+    document.getElementById('userInput').focus();
+  }
 
   // Map a free-text position value to a data-match key for a given term
   function positionToMatch(term, value) {
@@ -730,7 +896,7 @@
     document.getElementById('founderResultValue').textContent = founderTotal;
     document.getElementById('totalResultValue').textContent = combined;
 
-    const mainEl = document.querySelector('.main');
+    const mainEl = document.getElementById('gameMain');
     const fadeDelay = skipFade ? 0 : 500;
 
     if (skipFade) {
@@ -771,7 +937,7 @@
 
   function goBackToChat() {
     document.getElementById('results').style.display = 'none';
-    const mainEl = document.querySelector('.main');
+    const mainEl = document.getElementById('gameMain');
     mainEl.classList.remove('fade-out');
     mainEl.style.display = 'flex';
   }
@@ -891,7 +1057,11 @@
   addMessage('bot', BOT_INTRO);
   conversationHistory.push({ role: 'assistant', content: BOT_INTRO });
 
+  if (new URLSearchParams(location.search).has('skip-intro')) {
+    startGame();
+  }
   if (new URLSearchParams(location.search).has('results')) {
+    startGame();
     negotiationState = {
       terms: {
         vc_equity_percentage: { status: 'tentatively_agreed', agreed_value: '45' },
