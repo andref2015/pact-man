@@ -119,9 +119,55 @@
       transition: opacity 0.2s;
     }
     .pos-dot.active { opacity: 1; }
-    .pos-dot.vc { background: #3B82F6; }
-    .pos-dot.founder { background: #D09047; }
-    .pos-dot.agreed { background: #4CAF50; }
+    .pos-dot.vc {
+      background: #3B82F6;
+      width: 12px;
+      height: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: white;
+      line-height: 1;
+    }
+    .pos-dot.vc::after { content: 'V'; }
+    .pos-dot.founder {
+      background: #D09047;
+      width: 12px;
+      height: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: white;
+      line-height: 1;
+    }
+    .pos-dot.founder::after { content: 'F'; }
+    .pos-dot.agreed {
+      background: #4CAF50;
+      width: 10px;
+      height: 10px;
+    }
+    @keyframes dotSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .pos-dot.loading {
+      background: #999 !important;
+      color: transparent !important;
+      position: relative;
+    }
+    .pos-dot.loading::after {
+      content: '' !important;
+      position: absolute;
+      top: 1px; left: 1px; right: 1px; bottom: 1px;
+      border: 1.5px solid transparent;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: dotSpin 0.7s linear infinite;
+    }
     .sidebar tr.agreed-row td { background: rgba(76, 175, 80, 0.08); }
     .sidebar .legend {
       display: flex;
@@ -141,6 +187,16 @@
     .sidebar .legend .pos-dot {
       width: 9px;
       height: 9px;
+    }
+    .sidebar .legend .pos-dot.vc {
+      width: 14px;
+      height: 14px;
+      font-size: 9px;
+    }
+    .sidebar .legend .pos-dot.founder {
+      width: 14px;
+      height: 14px;
+      font-size: 9px;
     }
 
     .tracker-score-bar {
@@ -611,7 +667,6 @@
       <div class="legend">
         <span><span class="pos-dot vc active" style="opacity:1"></span> Your position</span>
         <span><span class="pos-dot founder active" style="opacity:1"></span> Founder position</span>
-        <span><span class="pos-dot agreed active" style="opacity:1"></span> Agreed</span>
       </div>
       <table id="scoreSheet">
         <tr class="term-header"><td></td><td>VC Equity %</td><td></td></tr>
@@ -867,7 +922,7 @@
     // Banner
     banner.className = 'tracker-banner';
     banner.style.display = 'none';
-    if (state.overall_status === 'deal_reached') {
+    if (state.overall_status === 'deal_reached' && vcScore >= 30 && !vcNoDeal) {
       banner.textContent = 'Deal Reached!';
       banner.className = 'tracker-banner deal';
       document.getElementById('userInput').disabled = true;
@@ -1107,6 +1162,9 @@
       addMessage('bot', reply);
       conversationHistory.push({ role: 'assistant', content: reply });
 
+      // Add loading animation to existing active dots
+      document.querySelectorAll('#scoreSheet .pos-dot.active').forEach(d => d.classList.add('loading'));
+
       // Call judge in background to update deal tracker
       fetch('/api/judge', {
         method: 'POST',
@@ -1115,6 +1173,7 @@
       })
         .then(r => r.json())
         .then(judgeData => {
+          document.querySelectorAll('#scoreSheet .pos-dot.loading').forEach(d => d.classList.remove('loading'));
           if (judgeData.state) {
             if (judgeData.state._judgeError) {
               console.error('%c[Judge FAILED]', 'color:#e05555;font-weight:bold', judgeData.state._judgeError);
@@ -1122,7 +1181,10 @@
             updateTracker(judgeData.state);
           }
         })
-        .catch(err => console.error('Judge call failed:', err));
+        .catch(err => {
+          document.querySelectorAll('#scoreSheet .pos-dot.loading').forEach(d => d.classList.remove('loading'));
+          console.error('Judge call failed:', err);
+        });
     } catch (err) {
       hideTyping();
       addMessage('bot', 'Something went wrong. Please try again.');
