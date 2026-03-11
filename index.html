@@ -435,6 +435,45 @@
       margin: 4px 0;
     }
     .total-chart .chart-track { height: 44px; }
+    .results-breakdown {
+      width: 100%;
+      max-width: 520px;
+      margin-top: 18px;
+    }
+    .results-breakdown table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .results-breakdown th {
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.4);
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .results-breakdown th:not(:first-child) { text-align: center; }
+    .results-breakdown td {
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+    }
+    .results-breakdown td:not(:first-child) { text-align: center; }
+    .results-breakdown td:first-child {
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+    }
+    .results-breakdown tr.breakdown-total td {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      border-bottom: none;
+      font-weight: 700;
+      padding-top: 10px;
+      color: #fff;
+    }
     .results-note {
       margin-top: 28px;
       font-size: 14px;
@@ -714,6 +753,7 @@
     }
     .history-scores .score-founder { color: #D09047; font-weight: 600; }
     .history-scores .score-vc { color: #D09047; font-weight: 600; }
+    .history-scores .score-total { color: #D09047; font-weight: 600; }
     .history-delete {
       background: none;
       border: none;
@@ -864,7 +904,11 @@
     <div>
       <h1>Pact-Man</h1>
       <img src="/images/logo.png" alt="Pact-Man logo" class="logo">
-      <button class="view-scores-btn" id="viewScoresBtn" style="display:none" onclick="showResults(true)">View Scores</button>
+      <span style="flex:1"></span>
+      <span style="display:flex; gap:10px;">
+        <button class="view-scores-btn" id="viewScoresBtn" style="display:none" onclick="showResults(true)">View Scores</button>
+        <button class="view-scores-btn" id="backToMenuBtn" style="display:none" onclick="playAgain()">Back to Menu</button>
+      </span>
     </div>
   </header>
 
@@ -949,6 +993,7 @@
       </div>
     </div>
     <div class="results-note">Maximums are constrained by both sides reaching their 30-point BATNA</div>
+    <div class="results-breakdown" id="resultsBreakdown"></div>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
       <button class="results-back" onclick="goBackToChat()">View conversation</button>
       <button class="results-back" onclick="playAgain()">Play again</button>
@@ -1240,6 +1285,40 @@
       return;
     }
 
+    const TERM_LABELS = {
+      vc_equity_percentage: 'Equity %',
+      type_of_stock: 'Stock Type',
+      vc_board_members: 'Board Members',
+      founder_vesting: 'Founder Vesting',
+      ceo_replacement: 'CEO Replacement'
+    };
+    // Build breakdown rows
+    let breakdownRows = '';
+    const perTerm = [];
+    for (const key of termKeys) {
+      const t = negotiationState.terms[key];
+      const agreed = (t && t.status === 'tentatively_agreed' && t.agreed_value) ? t.agreed_value : null;
+      const fp = agreed ? getFounderPoints(key, agreed) : '—';
+      const vp = agreed ? getVCPoints(key, agreed) : '—';
+      perTerm.push({ key, agreed, fp, vp });
+      breakdownRows += `<tr>
+        <td>${TERM_LABELS[key]}</td>
+        <td>${agreed || '—'}</td>
+        <td>${typeof fp === 'number' ? fp : fp}</td>
+        <td>${typeof vp === 'number' ? vp : vp}</td>
+      </tr>`;
+    }
+
+    document.getElementById('resultsBreakdown').innerHTML = `
+      <table>
+        <tr><th>Term</th><th>Agreed</th><th style="color:#D09047;">Founder</th><th style="color:#3B82F6;">VC</th></tr>
+        ${breakdownRows}
+        <tr class="breakdown-total">
+          <td>Total</td><td></td><td>${founderTotal}</td><td>${vcTotal}</td>
+        </tr>
+      </table>
+    `;
+
     const combined = vcTotal + founderTotal;
     const VC_MAX = 54, FOUNDER_MAX = 59, TOTAL_MAX = 92;
 
@@ -1297,6 +1376,7 @@
     mainEl.classList.remove('fade-out');
     mainEl.style.display = 'flex';
     document.getElementById('viewScoresBtn').style.display = '';
+    document.getElementById('backToMenuBtn').style.display = '';
   }
 
   function playAgain() {
@@ -1324,6 +1404,7 @@
     document.getElementById('gameMain').classList.remove('fade-out');
     document.getElementById('gameHeader').style.display = 'none';
     document.getElementById('viewScoresBtn').style.display = 'none';
+    document.getElementById('backToMenuBtn').style.display = 'none';
     document.getElementById('intro').style.display = '';
   }
 
@@ -1537,7 +1618,8 @@
         <div class="history-strategy">${stratLabel}</div>
         <div class="history-scores">
           <span class="score-founder">You: ${game.founderScore}</span> &middot;
-          <span class="score-vc">VC: ${game.vcScore}</span>
+          <span class="score-vc">VC: ${game.vcScore}</span> &middot;
+          <span class="score-total">Total: ${game.founderScore + game.vcScore}/92</span>
         </div>
         <button class="history-delete" onclick="deleteGame(event, ${game.id})" title="Delete">&times;</button>
       </div>`;
@@ -1564,7 +1646,7 @@
     document.getElementById('replayMeta').innerHTML =
       `<strong>${stratLabel}</strong> &middot; ${dateStr}`;
     document.getElementById('replayScores').innerHTML =
-      `<span class="score-founder">You: ${game.founderScore}</span> &middot; <span class="score-vc">VC: ${game.vcScore}</span>`;
+      `<span class="score-founder">You: ${game.founderScore}</span> &middot; <span class="score-vc">VC: ${game.vcScore}</span> &middot; <span class="score-total">Total: ${game.founderScore + game.vcScore}/92</span>`;
 
     // Render chat transcript
     const chat = document.getElementById('replayChat');
