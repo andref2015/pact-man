@@ -1,4 +1,4 @@
-const { calculateScores, defaultState } = require('./negotiate');
+const { defaultState } = require('./negotiate');
 
 const JUDGE_SYSTEM_PROMPT = `You are a negotiation analyst observing a Series A funding negotiation between a startup founder and a VC investor. Your job is to analyze the conversation and report the current state of each negotiation term by calling the update_negotiation_state tool.
 
@@ -138,9 +138,6 @@ async function callJudge(apiKey, messages, currentState) {
         }
       }
     }
-
-    const scores = calculateScores(newState);
-    newState.agreed_count = scores.agreedCount;
 
     return newState;
   } catch (err) {

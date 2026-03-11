@@ -28,8 +28,17 @@ function makeRes(raw) {
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && (req.url === '/api/negotiate' || req.url === '/api/judge' || req.url === '/api/test-negotiate')) {
-    const h = req.url === '/api/judge' ? judgeHandler : req.url === '/api/test-negotiate' ? testNegotiateHandler : handler;
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+
+  // GET /api/negotiate — returns intro for a strategy
+  if (req.method === 'GET' && parsedUrl.pathname === '/api/negotiate') {
+    req.query = Object.fromEntries(parsedUrl.searchParams);
+    handler(req, makeRes(res));
+    return;
+  }
+
+  if (req.method === 'POST' && (parsedUrl.pathname === '/api/negotiate' || parsedUrl.pathname === '/api/judge' || parsedUrl.pathname === '/api/test-negotiate')) {
+    const h = parsedUrl.pathname === '/api/judge' ? judgeHandler : parsedUrl.pathname === '/api/test-negotiate' ? testNegotiateHandler : handler;
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {

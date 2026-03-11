@@ -828,13 +828,8 @@
   let conversationHistory = [];
   let sending = false;
   let negotiationState = null;
+  let judgeAbort = null;
   let selectedStrategy = 'collaborative';
-
-  const STRATEGY_INTROS = {
-    aggressive: "I'll be straight with you — I've reviewed your deck and the numbers are interesting, but my fund sees 500 deals a year and we invest in maybe ten. We don't do friendly terms. What are you proposing?",
-    collaborative: "Thanks for walking me through the pitch — I'm genuinely impressed with what you've built. The signed contracts and the team you've put together? That's exactly the kind of traction we look for.\n\nI think there's a deal here that works great for both of us. I'm open to discussing equity, stock type, board seats, vesting, and CEO provisions — what matters most to you?",
-    charming: "I have to tell you — your pitch was easily the most exciting thing I've seen this quarter. My partner literally texted me 'this is the one' halfway through your deck.\n\nLook, I want to make this happen. Let's figure out terms that work. What's on your mind?",
-  };
 
   const STRATEGY_LABELS = {
     aggressive: 'Aggressive',
@@ -848,19 +843,28 @@
     selectedStrategy = el.dataset.strategy;
   }
 
-  function startGame() {
+  async function startGame() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('gameHeader').style.display = '';
     document.getElementById('gameMain').style.display = 'flex';
     document.getElementById('userInput').focus();
 
-    // Clear default intro and set strategy-specific one
+    // Clear default intro and fetch strategy-specific one from server (single source of truth)
     const chat = document.getElementById('chat');
     chat.innerHTML = '';
     conversationHistory = [];
-    const intro = STRATEGY_INTROS[selectedStrategy];
-    addMessage('bot', intro);
-    conversationHistory.push({ role: 'assistant', content: intro });
+    showTyping();
+    try {
+      const res = await fetch(`/api/negotiate?strategy=${selectedStrategy}`);
+      const data = await res.json();
+      hideTyping();
+      const intro = data.intro;
+      addMessage('bot', intro);
+      conversationHistory.push({ role: 'assistant', content: intro });
+    } catch (e) {
+      hideTyping();
+      addMessage('bot', 'Something went wrong loading the intro. Please refresh and try again.');
+    }
   }
 
   // Map a free-text position value to a data-match key for a given term
@@ -1303,11 +1307,14 @@
       // Add loading animation to existing active dots
       document.querySelectorAll('#scoreSheet .pos-dot.active').forEach(d => d.classList.add('loading'));
 
-      // Call judge in background to update deal tracker
+      // Cancel any in-flight judge call, then fire a new one
+      if (judgeAbort) judgeAbort.abort();
+      judgeAbort = new AbortController();
       fetch('/api/judge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: conversationHistory, state: negotiationState }),
+        signal: judgeAbort.signal,
       })
         .then(r => r.json())
         .then(judgeData => {
@@ -1320,6 +1327,7 @@
           }
         })
         .catch(err => {
+          if (err.name === 'AbortError') return;
           document.querySelectorAll('#scoreSheet .pos-dot.loading').forEach(d => d.classList.remove('loading'));
           console.error('Judge call failed:', err);
         });
