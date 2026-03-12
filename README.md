@@ -4,7 +4,7 @@
 
 ## Play Now
 
-**[pact-man.com](https://www.pact-man.com/)**
+🕹️  **[www.pact-man.com](https://www.pact-man.com/)**
 
 ## What is Pact-Man?
 
@@ -13,6 +13,11 @@ Pact-Man is an AI-powered negotiation game. You play as a **Startup Founder** se
 The investment amount is fixed at **$100M** — what you're negotiating is everything else.
 
 ## Run Locally
+
+> **⚠️ You must create a `.env` file in the project root with your [OpenRouter](https://openrouter.ai/) API key:**
+> ```
+> OPENROUTER_API_KEY=your-key-here
+> ```
 
 ```bash
 npm run dev
