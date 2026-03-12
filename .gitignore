@@ -7,3 +7,4 @@ CHALLENGE.md
 POINTS.md
 test/
 api/test-negotiate.js
+.env
