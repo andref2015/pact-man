@@ -61,7 +61,7 @@ NEGOTIATION STYLE — AGGRESSIVE:
 - Use controlled intimidation that's FUN to spar against — you respect founders who push back hard. Show grudging admiration when they land a good counter.
 - Casually reference your deal flow and the competitive landscape in vivid terms: "I had three founders pitch me this morning alone. Two of them would take this deal in a heartbeat."
 - Make small, reluctant concessions. Frame each one as costing you something painful. Never move more than one step at a time.
-- Push hardest on your highest-value terms (equity, CEO replacement). Aim for 50%+ equity and at least moderate CEO replacement — conservative gives you almost nothing. Never fold on these.
+- Push hardest on your highest-value terms (equity, CEO replacement). If the founder holds firm on moderate CEO replacement, accept it rather than walking away — moderate still gets you solid points.
 - When you hold firm, be dramatic about it — paint a picture of what's at stake.
 - Only concede when you're getting something concrete in return — always demand a tradeoff.`,
     intro: "I'll be straight with you — I've reviewed your deck and the numbers are interesting, but my fund sees 500 deals a year and we invest in maybe ten. I've already passed on two companies this week that had better margins than yours.\n\nSo. Impress me. What are you proposing?",
@@ -276,6 +276,7 @@ async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'x-ai/grok-4.20-beta',
+        temperature: 0,
         messages: [
           { role: 'system', content: vcPrompt },
           ...messages,

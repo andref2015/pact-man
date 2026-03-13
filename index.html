@@ -205,6 +205,21 @@
       animation: dotSpin 1.2s linear infinite;
     }
     .sidebar tr.agreed-row td { background: rgba(76, 175, 80, 0.08); }
+    .sidebar tr[data-term] { cursor: pointer; }
+    .sidebar tr[data-term]:hover td { background: rgba(125,151,165,0.08); }
+    .sidebar tr.picked td { background: rgba(208,144,71,0.13); }
+    .sidebar tr.picked:hover td { background: rgba(208,144,71,0.18); }
+    .whatif-bar {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(208,144,71,0.12);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #D09047;
+      text-align: center;
+      display: none;
+    }
     .sidebar .legend {
       display: flex;
       justify-content: center;
@@ -981,6 +996,7 @@
         <tr data-term="ceo_replacement" data-match="aggressive"><td class="dot-cell"><span class="pos-dot"></span></td><td>Aggressive Projections</td><td class="no-deal">No Deal</td></tr>
       </table>
       <div class="tracker-score-bar">Your Score: <span id="founderScoreDisplay">0</span> pts / 30</div>
+      <div class="whatif-bar" id="whatifBar">What-if: <span id="whatifScore">0</span> pts</div>
     </div>
   </div>
 
@@ -1417,6 +1433,7 @@
       d.classList.remove('active', 'vc', 'founder', 'agreed', 'loading');
     });
     document.querySelectorAll('#scoreSheet tr.agreed-row').forEach(r => r.classList.remove('agreed-row'));
+    clearWhatIf();
 
     // Hide results and game, show intro
     document.getElementById('results').style.display = 'none';
@@ -1755,6 +1772,54 @@
     };
     showResults(true);
   }
+
+  // -- What-if calculator: click rows to sum points --
+  function clearWhatIf() {
+    document.querySelectorAll('#scoreSheet tr.picked').forEach(r => r.classList.remove('picked'));
+    document.getElementById('whatifBar').style.display = 'none';
+    document.getElementById('whatifScore').textContent = '0';
+  }
+
+  function updateWhatIfScore() {
+    const picked = document.querySelectorAll('#scoreSheet tr.picked');
+    if (picked.length === 0) {
+      document.getElementById('whatifBar').style.display = 'none';
+      return;
+    }
+    let total = 0;
+    let noDeal = false;
+    picked.forEach(row => {
+      const lastTd = row.querySelector('td:last-child');
+      if (lastTd.classList.contains('no-deal')) {
+        noDeal = true;
+      } else {
+        total += parseInt(lastTd.textContent) || 0;
+      }
+    });
+    const bar = document.getElementById('whatifBar');
+    const scoreSpan = document.getElementById('whatifScore');
+    bar.style.display = 'block';
+    if (noDeal) {
+      scoreSpan.textContent = 'No Deal';
+    } else {
+      scoreSpan.textContent = total;
+    }
+  }
+
+  document.querySelectorAll('#scoreSheet tr[data-term]').forEach(row => {
+    row.addEventListener('click', () => {
+      const term = row.dataset.term;
+      // If clicking a row in the same term that's already picked, deselect it
+      if (row.classList.contains('picked')) {
+        row.classList.remove('picked');
+      } else {
+        // Deselect any other picked row in the same term
+        document.querySelectorAll(`#scoreSheet tr[data-term="${term}"].picked`).forEach(r => r.classList.remove('picked'));
+        row.classList.add('picked');
+      }
+      updateWhatIfScore();
+    });
+  });
 </script>
 </body>
 </html>
