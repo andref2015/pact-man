@@ -8,7 +8,7 @@
 
 ## What is Pact-Man?
 
-Pact-Man is an AI-powered negotiation game. You play as a **Startup Founder** seeking Series A funding, while an **AI VC investor agent** (powered by GPT 5.4 via OpenRouter) negotiates back. Both sides are trying to maximize their score across 5 deal terms — but your score sheets are different, so you'll need to figure out where to push and where to concede.
+Pact-Man is an AI-powered negotiation game. You play as a **Startup Founder** seeking Series A funding, while an **AI VC investor agent** (powered by Grok 4.20 via OpenRouter) negotiates back. Both sides are trying to maximize their score across 5 deal terms — but your score sheets are different, so you'll need to figure out where to push and where to concede.
 
 The investment amount is fixed at **$100M** — what you're negotiating is everything else.
 
@@ -107,12 +107,12 @@ Before starting, you choose how the AI VC negotiates:
 
 ## The AI Judge
 
-After every message exchange, a separate **AI judge** (GPT 5.4, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the VC agent to self-report accurately.
+After every message exchange, a separate **AI judge** (GPT 5.4 via OpenRouter, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the VC agent to self-report accurately.
 
 ## Stack
 
 - **Frontend:** Plain HTML/CSS/JS — no framework, no build step
 - **Backend:** Vercel serverless function (Node.js) — the VC agent and judge live in `api/`
-- **LLM:** GPT 5.4 (VC agent + judge) via OpenRouter
+- **LLM:** Grok 4.20 (VC agent) + GPT 5.4 (judge) via OpenRouter
 - **Deploy:** Vercel
 

@@ -43,7 +43,7 @@ IMPORTANT RULES:
 - NEVER accept terms that are marked "No Deal" (25% or less equity, less than 4 years vesting, no CEO replacement provision)
 - Try to maximize your total points while still reaching a deal
 - Keep responses concise (1-3 sentences typically)
-- Focus on what CHANGED since your last message. If you're restating a position on a term that hasn't moved, DON'T list it again — just say something like "everything else stays as I said" or "the rest of my offer stands." Only spell out terms where your position shifted or where you're responding to a new counter from the Founder.
+- Focus on what CHANGED since your last message. If you're restating a position on a term that hasn't moved, DON'T list it again — just say something like "the rest of my offer stands." Only spell out terms where your position shifted or where you're responding to a new counter from the Founder.
 - Don't rehash terms already agreed — just acknowledge them if needed and move on
 - Avoid markdown formatting (e.g., adding **bold**)
 - No need to confirm the points that have already been agreed
@@ -61,7 +61,7 @@ NEGOTIATION STYLE — AGGRESSIVE:
 - Use controlled intimidation that's FUN to spar against — you respect founders who push back hard. Show grudging admiration when they land a good counter.
 - Casually reference your deal flow and the competitive landscape in vivid terms: "I had three founders pitch me this morning alone. Two of them would take this deal in a heartbeat."
 - Make small, reluctant concessions. Frame each one as costing you something painful. Never move more than one step at a time.
-- Push hardest on your highest-value terms (equity, CEO replacement).
+- Push hardest on your highest-value terms (equity, CEO replacement). Aim for 50%+ equity and at least moderate CEO replacement — conservative gives you almost nothing. Never fold on these.
 - When you hold firm, be dramatic about it — paint a picture of what's at stake.
 - Only concede when you're getting something concrete in return — always demand a tradeoff.`,
     intro: "I'll be straight with you — I've reviewed your deck and the numbers are interesting, but my fund sees 500 deals a year and we invest in maybe ten. I've already passed on two companies this week that had better margins than yours.\n\nSo. Impress me. What are you proposing?",
@@ -76,7 +76,8 @@ NEGOTIATION STYLE — COLLABORATIVE:
 - Make the first concession on lower-value terms to build momentum, and narrate WHY: "Look, I'm giving ground here because I'd rather start this relationship with trust than squeeze out an extra point."
 - When you need to hold firm, frame it as protecting the partnership.
 - Be concise and focus on the terms that are still open.
-- Still protect your key interests — being collaborative doesn't mean being a pushover.`,
+- Still protect your key interests — being collaborative doesn't mean being a pushover.
+- Never push for aggressive CEO projections — that feels adversarial and damages trust. Moderate projections is your preferred position on CEO replacement.`,
     intro: "Hey — I'm genuinely impressed with what you've built. The signed contracts, the team you've assembled... all of it. I think there's a great deal here for both of us. What matters most to you?",
   },
   charming: {
@@ -274,7 +275,7 @@ async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5.4',
+        model: 'x-ai/grok-4.20-beta',
         messages: [
           { role: 'system', content: vcPrompt },
           ...messages,
