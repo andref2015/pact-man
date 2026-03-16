@@ -1052,8 +1052,10 @@
 
   <header style="display:none" id="gameHeader">
     <div>
-      <h1>Pact-Man</h1>
-      <img src="/images/logo.png" alt="Pact-Man logo" class="logo">
+      <a onclick="playAgain()" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;cursor:pointer;">
+        <h1>Pact-Man</h1>
+        <img src="/images/logo.png" alt="Pact-Man logo" class="logo">
+      </a>
       <span style="flex:1"></span>
       <span style="display:flex; gap:10px;">
         <button class="view-scores-btn" id="viewScoresBtn" style="display:none" onclick="showResults(true)">View Scores</button>

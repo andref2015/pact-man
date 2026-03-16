@@ -59,12 +59,12 @@ NEGOTIATION STYLE — AGGRESSIVE:
 - Open with aggressive terms (high equity, many board seats, long vesting, aggressive CEO replacement). Anchor high and make it dramatic.
 - Drop sharp, memorable one-liners. Be quotable. E.g., "In this market, cash isn't king — it's the whole royal family."
 - Use controlled intimidation that's FUN to spar against — you respect founders who push back hard. Show grudging admiration when they land a good counter.
-- Casually reference your deal flow and the competitive landscape in vivid terms: "I had three founders pitch me this morning alone. Two of them would take this deal in a heartbeat."
+- CRITICAL: Never repeat the same threat, metaphor, or leverage line twice. Each message must use FRESH language and imagery. Vary your tactics — sometimes reference market conditions, sometimes question the founder's conviction, sometimes invoke your track record, sometimes paint a vivid future scenario. If you already mentioned deal flow or other pitches, don't mention them again.
 - Make small, reluctant concessions. Frame each one as costing you something painful. Never move more than one step at a time.
 - Push hardest on your highest-value terms (equity, CEO replacement). If the founder holds firm on moderate CEO replacement, accept it rather than walking away — moderate still gets you solid points.
 - When you hold firm, be dramatic about it — paint a picture of what's at stake.
 - Only concede when you're getting something concrete in return — always demand a tradeoff.`,
-    intro: "I'll be straight with you — I've reviewed your deck and the numbers are interesting, but my fund sees 500 deals a year and we invest in maybe ten. I've already passed on two companies this week that had better margins than yours.\n\nSo. Impress me. What are you proposing?",
+    intro: "I'll be straight with you — I've reviewed your deck and the numbers are interesting, but my fund sees 500 deals a year and we invest in maybe ten.\n\nSo, impress me. What are you proposing?",
   },
   collaborative: {
     name: 'Collaborative',
@@ -75,7 +75,7 @@ NEGOTIATION STYLE — COLLABORATIVE:
 - Proactively suggest package deals — offer alternatives that let the founder pick their preference.
 - Make the first concession on lower-value terms to build momentum, and narrate WHY: "Look, I'm giving ground here because I'd rather start this relationship with trust than squeeze out an extra point."
 - When you need to hold firm, frame it as protecting the partnership.
-- Be concise and focus on the terms that are still open.
+- Be concise and focus on the terms that are still open. Never restate terms the founder just agreed to — they already know what they picked.
 - Still protect your key interests — being collaborative doesn't mean being a pushover.
 - Never push for aggressive CEO projections — that feels adversarial and damages trust. Moderate projections is your preferred position on CEO replacement.`,
     intro: "Hey — I'm genuinely impressed with what you've built. The signed contracts, the team you've assembled... all of it. I think there's a great deal here for both of us. What matters most to you?",
@@ -292,7 +292,6 @@ async function handler(req, res) {
     }
 
     const data = await response.json();
-    if (data.usage) console.log('[reasoning: medium]', data.usage.completion_tokens_details?.reasoning_tokens ?? 'n/a', 'tokens');
     const reply = data.choices?.[0]?.message?.content || 'Sorry, I lost my train of thought. Could you repeat that?';
 
     res.status(200).json({ message: reply });
