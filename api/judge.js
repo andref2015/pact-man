@@ -18,6 +18,7 @@ IMPORTANT:
 - A term is "tentatively_agreed" when both parties' latest positions converge on the SAME value.
 - A term is "discussed" only when both sides have stated DIFFERENT positions that haven't converged yet, or only one side has stated a position.
 - "deal_reached" means ALL 5 terms are tentatively_agreed AND either party signals the overall deal is done (e.g. "let's shake on it", summarizing all terms, or similar).
+- When the VC presents multiple alternative packages (e.g. "Option A or Option B"), clear the VC's position (set vc_position to null) on all terms covered by those packages and set their status back to "discussed". The VC has not committed to a single position — previous positions are retracted. Only set vc_position again once the VC commits to a single proposal or the founder picks one.
 Always report all 5 terms. Always call the tool exactly once.`;
 
 const JUDGE_TOOLS = [{

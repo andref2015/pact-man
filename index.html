@@ -312,6 +312,24 @@
     .bubble li {
       margin: 2px 0;
     }
+    .bubble table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    .bubble th, .bubble td {
+      padding: 6px 10px;
+      border: 1px solid #d0d0d4;
+      text-align: left;
+    }
+    .bubble th {
+      background: #e9e9ec;
+      font-weight: 600;
+    }
+    .bubble tr:nth-child(even) td {
+      background: #f0f0f2;
+    }
 
     /* Typing indicator */
     .typing-dot {
@@ -522,6 +540,87 @@
     .results-back:hover {
       color: rgba(255,255,255,0.95);
       border-color: rgba(255,255,255,0.5);
+    }
+    .coach-section {
+      width: 100%;
+      max-width: 520px;
+      margin-top: 24px;
+      text-align: left;
+    }
+    .coach-title {
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 12px;
+    }
+    .coach-loading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.4);
+      font-size: 15px;
+    }
+    .coach-loading .dot-pulse {
+      display: inline-flex;
+      gap: 4px;
+    }
+    .coach-loading .dot-pulse span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      animation: coachPulse 1.2s ease-in-out infinite;
+    }
+    .coach-loading .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+    .coach-loading .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes coachPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .coach-group {
+      margin-bottom: 14px;
+    }
+    .coach-group-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .coach-group-label.strengths { color: #4CAF50; }
+    .coach-group-label.improvements { color: #D09047; }
+    .coach-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .coach-items li {
+      font-size: 15px;
+      color: rgba(255,255,255,0.8);
+      padding: 4px 0 4px 16px;
+      position: relative;
+      line-height: 1.4;
+    }
+    .coach-items li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .coach-group.strengths .coach-items li::before { background: #4CAF50; }
+    .coach-group.improvements .coach-items li::before { background: #D09047; }
+    .coach-tip {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      border-left: 3px solid #3B82F6;
+      line-height: 1.4;
     }
     @keyframes resultsFadeIn {
       from { opacity: 0; transform: translateY(16px); }
@@ -835,6 +934,21 @@
       font-size: 13px;
       color: rgba(255,255,255,0.5);
     }
+    .replay-results-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      padding: 6px 16px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .replay-results-btn:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,0.4);
+    }
     .replay-scores .score-founder { color: #D09047; font-weight: 600; }
     .replay-scores .score-vc { color: #3B82F6; font-weight: 600; }
     .replay-chat {
@@ -931,6 +1045,7 @@
       <button class="replay-back" onclick="closeReplay()">Back</button>
       <div class="replay-meta" id="replayMeta"></div>
       <div class="replay-scores" id="replayScores"></div>
+      <button class="replay-results-btn" id="replayResultsBtn" onclick="openReplayResults()">View Results</button>
     </div>
     <div class="replay-chat" id="replayChat"></div>
   </div>
@@ -1030,6 +1145,7 @@
     </div>
     <div class="results-note">Maximums are constrained by both sides reaching their 30-point BATNA</div>
     <div class="results-breakdown" id="resultsBreakdown"></div>
+    <div class="coach-section" id="coachSection" style="display:none;"></div>
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
       <button class="results-back" onclick="goBackToChat()">View conversation</button>
       <button class="results-back" onclick="playAgain()">Play again</button>
@@ -1393,7 +1509,72 @@
       }, 900);
 
       setTimeout(fireConfetti, 400);
+      fetchCoachFeedback(founderTotal, vcTotal);
     }, fadeDelay);
+  }
+
+  function renderCoachHtml(fb) {
+    let html = '<div class="coach-title">AI Coach</div>';
+
+    if (fb.strengths && fb.strengths.length) {
+      html += '<div class="coach-group strengths"><div class="coach-group-label strengths">What you did well</div><ul class="coach-items">';
+      for (const s of fb.strengths) html += `<li>${escHtml(s)}</li>`;
+      html += '</ul></div>';
+    }
+
+    if (fb.improvements && fb.improvements.length) {
+      html += '<div class="coach-group improvements"><div class="coach-group-label improvements">Next time, try</div><ul class="coach-items">';
+      for (const s of fb.improvements) html += `<li>${escHtml(s)}</li>`;
+      html += '</ul></div>';
+    }
+
+    if (fb.tip) {
+      html += `<div class="coach-tip">${escHtml(fb.tip)}</div>`;
+    }
+
+    return html;
+  }
+
+  async function fetchCoachFeedback(founderTotal, vcTotal) {
+    const section = document.getElementById('coachSection');
+    section.style.display = '';
+    section.innerHTML = `
+      <div class="coach-title">AI Coach</div>
+      <div class="coach-loading">Analyzing your negotiation<div class="dot-pulse"><span></span><span></span><span></span></div></div>
+    `;
+
+    try {
+      const resp = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversationHistory,
+          founderScore: founderTotal,
+          vcScore: vcTotal,
+          strategy: selectedStrategy,
+        }),
+      });
+
+      if (!resp.ok) throw new Error('Coach request failed');
+      const fb = await resp.json();
+      if (fb.error) throw new Error(fb.error);
+
+      section.innerHTML = renderCoachHtml(fb);
+
+      // Save feedback to history
+      const history = getHistory();
+      if (history.length > 0) {
+        history[0].coachFeedback = fb;
+        localStorage.setItem('pactman_history', JSON.stringify(history));
+      }
+    } catch (err) {
+      console.error('Coach error:', err);
+      section.style.display = 'none';
+    }
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function fireConfetti() {
@@ -1407,12 +1588,25 @@
   }
 
   function goBackToChat() {
-    document.getElementById('results').style.display = 'none';
-    const mainEl = document.getElementById('gameMain');
-    mainEl.classList.remove('fade-out');
-    mainEl.style.display = 'flex';
-    document.getElementById('viewScoresBtn').style.display = '';
-    document.getElementById('backToMenuBtn').style.display = '';
+    const results = document.getElementById('results');
+    const fromReplay = results.dataset.fromReplay === '1';
+    results.style.display = 'none';
+    results.dataset.fromReplay = '';
+
+    // Reset bars for next viewing
+    document.getElementById('vcBar').style.width = '0';
+    document.getElementById('founderBar').style.width = '0';
+    document.getElementById('totalBar').style.width = '0';
+
+    if (fromReplay) {
+      document.getElementById('replay').style.display = 'flex';
+    } else {
+      const mainEl = document.getElementById('gameMain');
+      mainEl.classList.remove('fade-out');
+      mainEl.style.display = 'flex';
+      document.getElementById('viewScoresBtn').style.display = '';
+      document.getElementById('backToMenuBtn').style.display = '';
+    }
   }
 
   function playAgain() {
@@ -1429,6 +1623,8 @@
     document.getElementById('vcBar').style.width = '0';
     document.getElementById('founderBar').style.width = '0';
     document.getElementById('totalBar').style.width = '0';
+    document.getElementById('coachSection').style.display = 'none';
+    document.getElementById('coachSection').innerHTML = '';
     document.querySelectorAll('#scoreSheet .pos-dot').forEach(d => {
       d.classList.remove('active', 'vc', 'founder', 'agreed', 'loading');
     });
@@ -1448,6 +1644,42 @@
 
   // -- Helpers --
 
+  function renderBotHtml(text) {
+    const lines = text.split('\n').map(l =>
+      l.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    );
+    let html = '', inList = false, inTable = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const isTableRow = /^\|(.+\|)+\s*$/.test(line.trim());
+      const isSeparator = /^\|[\s\-:|]+\|$/.test(line.trim());
+
+      if (isTableRow || isSeparator) {
+        if (inList) { html += '</ul>'; inList = false; }
+        if (isSeparator) continue;
+        if (!inTable) { html += '<table>'; inTable = true; }
+        const cells = line.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+        const isHeader = i + 1 < lines.length && /^\|[\s\-:|]+\|$/.test(lines[i + 1].trim());
+        const tag = isHeader ? 'th' : 'td';
+        html += '<tr>' + cells.map(c => `<${tag}>${c}</${tag}>`).join('') + '</tr>';
+      } else {
+        if (inTable) { html += '</table>'; inTable = false; }
+        if (/^\* /.test(line)) {
+          if (!inList) { html += '<ul>'; inList = true; }
+          html += '<li>' + line.slice(2) + '</li>';
+        } else {
+          if (inList) { html += '</ul>'; inList = false; }
+          if (html) html += '<br>';
+          html += line;
+        }
+      }
+    }
+    if (inList) html += '</ul>';
+    if (inTable) html += '</table>';
+    return html;
+  }
+
   function addMessage(role, text) {
     const chat = document.getElementById('chat');
 
@@ -1465,23 +1697,7 @@
     bubble.className = 'bubble';
 
     if (role === 'bot') {
-      const lines = text.split('\n').map(l =>
-        l.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      );
-      let html = '', inList = false;
-      for (const line of lines) {
-        if (/^\* /.test(line)) {
-          if (!inList) { html += '<ul>'; inList = true; }
-          html += '<li>' + line.slice(2) + '</li>';
-        } else {
-          if (inList) { html += '</ul>'; inList = false; }
-          if (html) html += '<br>';
-          html += line;
-        }
-      }
-      if (inList) html += '</ul>';
-      bubble.innerHTML = html;
+      bubble.innerHTML = renderBotHtml(text);
     } else {
       text.split('\n').forEach((line, i) => {
         if (i > 0) bubble.appendChild(document.createElement('br'));
@@ -1680,9 +1896,12 @@
     renderHistory();
   }
 
+  let activeReplayGame = null;
+
   function openReplay(id) {
     const game = getHistory().find(g => g.id === id);
     if (!game) return;
+    activeReplayGame = game;
 
     const d = new Date(game.date);
     const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -1712,23 +1931,7 @@
       bubble.className = 'bubble';
 
       if (role === 'bot') {
-        const lines = msg.content.split('\n').map(l =>
-          l.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-           .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        );
-        let html = '', inList = false;
-        for (const line of lines) {
-          if (/^\* /.test(line)) {
-            if (!inList) { html += '<ul>'; inList = true; }
-            html += '<li>' + line.slice(2) + '</li>';
-          } else {
-            if (inList) { html += '</ul>'; inList = false; }
-            if (html) html += '<br>';
-            html += line;
-          }
-        }
-        if (inList) html += '</ul>';
-        bubble.innerHTML = html;
+        bubble.innerHTML = renderBotHtml(msg.content);
       } else {
         msg.content.split('\n').forEach((line, i) => {
           if (i > 0) bubble.appendChild(document.createElement('br'));
@@ -1746,9 +1949,83 @@
     document.getElementById('replay').style.display = 'flex';
   }
 
+  function openReplayResults() {
+    if (!activeReplayGame) return;
+    const game = activeReplayGame;
+
+    const TERM_LABELS = {
+      vc_equity_percentage: 'Equity %',
+      type_of_stock: 'Stock Type',
+      vc_board_members: 'Board Members',
+      founder_vesting: 'Founder Vesting',
+      ceo_replacement: 'CEO Replacement'
+    };
+    const termKeys = ['vc_equity_percentage', 'type_of_stock', 'vc_board_members', 'founder_vesting', 'ceo_replacement'];
+
+    let breakdownRows = '';
+    for (const key of termKeys) {
+      const agreed = game.agreedTerms?.[key] || null;
+      const fp = agreed ? getFounderPoints(key, agreed) : '—';
+      const vp = agreed ? getVCPoints(key, agreed) : '—';
+      breakdownRows += `<tr>
+        <td>${TERM_LABELS[key]}</td>
+        <td>${agreed || '—'}</td>
+        <td>${typeof fp === 'number' ? fp : fp}</td>
+        <td>${typeof vp === 'number' ? vp : vp}</td>
+      </tr>`;
+    }
+
+    document.getElementById('resultsBreakdown').innerHTML = `
+      <table>
+        <tr><th>Term</th><th>Agreed</th><th style="color:#D09047;">Founder</th><th style="color:#3B82F6;">VC</th></tr>
+        ${breakdownRows}
+        <tr class="breakdown-total">
+          <td>Total</td><td></td><td>${game.founderScore}</td><td>${game.vcScore}</td>
+        </tr>
+      </table>
+    `;
+
+    const combined = game.founderScore + game.vcScore;
+    const VC_MAX = 54, FOUNDER_MAX = 59, TOTAL_MAX = 92;
+
+    document.getElementById('vcResultValue').textContent = game.vcScore;
+    document.getElementById('founderResultValue').textContent = game.founderScore;
+    document.getElementById('totalResultValue').textContent = combined;
+    document.getElementById('resultsStrategy').textContent = 'VC strategy: ' + (STRATEGY_LABELS[game.strategy] || game.strategy);
+
+    // Coach feedback
+    const section = document.getElementById('coachSection');
+    if (game.coachFeedback) {
+      section.style.display = '';
+      section.innerHTML = renderCoachHtml(game.coachFeedback);
+    } else {
+      section.style.display = 'none';
+      section.innerHTML = '';
+    }
+
+    // Hide replay, show results
+    document.getElementById('replay').style.display = 'none';
+    document.getElementById('viewScoresBtn').style.display = 'none';
+    const results = document.getElementById('results');
+    results.style.display = 'flex';
+    results.style.animation = 'resultsFadeIn 0.6s ease both';
+    results.dataset.fromReplay = '1';
+
+    setTimeout(() => {
+      document.getElementById('founderBar').style.width = (game.founderScore / FOUNDER_MAX * 100) + '%';
+    }, 300);
+    setTimeout(() => {
+      document.getElementById('vcBar').style.width = (game.vcScore / VC_MAX * 100) + '%';
+    }, 550);
+    setTimeout(() => {
+      document.getElementById('totalBar').style.width = (combined / TOTAL_MAX * 100) + '%';
+    }, 900);
+  }
+
   function closeReplay() {
     document.getElementById('replay').style.display = 'none';
     document.getElementById('intro').style.display = '';
+    activeReplayGame = null;
   }
 
   // Render history on page load

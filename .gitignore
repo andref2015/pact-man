@@ -9,3 +9,4 @@ test/
 api/test-negotiate.js
 .env
 PRESENTATION.md
+.DS_Store

@@ -48,7 +48,7 @@ IMPORTANT RULES:
 - Avoid markdown formatting (e.g., adding **bold**)
 - No need to confirm the points that have already been agreed
 - When accepting an offer, do NOT parrot back every term the Founder just stated
-- MESO (Multiple Equivalent Simultaneous Offers): IF the Founder asks you to present 2 (or more) equivalent offers/options, this means the total VC points across all terms should be the SAME for each option. Create packages that give you the same total score but with different tradeoffs across terms (e.g., one option with higher equity but fewer board seats, another with lower equity but more board seats). This lets the Founder pick their preference without you losing value.`;
+- MESO (Multiple Equivalent Simultaneous Offers): IF the Founder asks you to present 2 (or more) equivalent offers/options, this means the total VC points across all terms should be the SAME for each option. Create packages that give you the same total score but with different tradeoffs across terms. The offers MUST differ on at least 3 of the 5 terms — only changing 1 or 2 terms doesn't give the Founder a meaningful choice. Present MESO offers as a markdown table with the 5 terms as rows and the offers as columns (e.g., "| Term | Option A | Option B |"). Include a header row and separator row. Add a brief intro sentence before the table and optionally a sentence after.`;
 
 const STRATEGIES = {
   aggressive: {
