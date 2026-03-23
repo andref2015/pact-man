@@ -1425,7 +1425,16 @@
       }, 900);
 
       setTimeout(fireConfetti, 400);
-      fetchCoachFeedback(founderTotal, vcTotal);
+
+      // Show saved feedback if available, otherwise fetch
+      const history = getHistory();
+      if (history.length > 0 && history[0].coachFeedback) {
+        const section = document.getElementById('coachSection');
+        section.style.display = '';
+        section.innerHTML = renderCoachHtml(history[0].coachFeedback);
+      } else {
+        fetchCoachFeedback(founderTotal, vcTotal);
+      }
     }, fadeDelay);
   }
 
