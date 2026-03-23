@@ -119,4 +119,3 @@ After every message exchange, a separate **AI judge** (Claude Sonnet 4.6 via Ope
 ## Credits
 
 The negotiation scenario is inspired by the [Aerospace Investment](https://www.pon.harvard.edu/shop/aerospace-investment/) exercise from the Harvard Program on Negotiation.
-
