@@ -107,12 +107,12 @@ Before starting, you choose how the AI VC negotiates:
 
 ## The AI Judge
 
-After every message exchange, a separate **AI judge** (GPT 5.4 via OpenRouter, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the VC agent to self-report accurately.
+After every message exchange, a separate **AI judge** (Claude Sonnet 4.6 via OpenRouter, using tool calls) reads the full conversation and extracts the current state of each term — what each side has proposed, and whether there's a tentative agreement. This keeps the Deal Tracker sidebar in sync with the conversation without relying on the VC agent to self-report accurately.
 
 ## Stack
 
 - **Frontend:** Plain HTML/CSS/JS — no framework, no build step
 - **Backend:** Vercel serverless function (Node.js) — the VC agent and judge live in `api/`
-- **LLM:** Grok 4.20 (VC agent) + GPT 5.4 (judge) via OpenRouter
+- **LLM:** Grok 4.20 (VC agent) + Claude Sonnet 4.6 (judge) via OpenRouter
 - **Deploy:** Vercel
 

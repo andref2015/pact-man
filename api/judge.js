@@ -19,6 +19,7 @@ IMPORTANT:
 - A term is "discussed" only when both sides have stated DIFFERENT positions that haven't converged yet, or only one side has stated a position.
 - "deal_reached" means ALL 5 terms are tentatively_agreed AND either party signals the overall deal is done (e.g. "let's shake on it", summarizing all terms, or similar).
 - When the VC presents multiple alternative packages (e.g. "Option A or Option B"), clear the VC's position (set vc_position to null) on all terms covered by those packages and set their status back to "discussed". The VC has not committed to a single position — previous positions are retracted. Only set vc_position again once the VC commits to a single proposal or the founder picks one.
+- When the founder selects or expresses preference for one of the VC's packages (e.g. "I like option A"), set the founder's position on ALL terms in that package — not just the ones the founder explicitly names. Choosing a package means adopting all its values. If the founder then modifies specific terms (e.g. "I like option A but I want 35% equity"), update those terms with the modified values while keeping the rest of the package as the founder's position.
 Always report all 5 terms. Always call the tool exactly once.`;
 
 const JUDGE_TOOLS = [{
@@ -92,7 +93,7 @@ async function callJudge(apiKey, messages, currentState) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-5.4',
+        model: 'anthropic/claude-sonnet-4.6',
         messages: [
           { role: 'system', content: JUDGE_SYSTEM_PROMPT },
           { role: 'user', content: formatConversationForJudge(messages, currentState) },
