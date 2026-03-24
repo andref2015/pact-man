@@ -57,7 +57,7 @@
       background: linear-gradient(90deg, transparent 0%, rgba(208,144,71,0.3) 50%, transparent 100%);
     }
     header > div { display: flex; align-items: center; gap: 14px; }
-    header h1 { font-size: 28px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    header h1 { font-size: 28px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; }
     header .logo { height: 34px; filter: drop-shadow(0 0 8px rgba(208,144,71,0.3)); }
 
     .view-scores-btn {
@@ -399,26 +399,21 @@
     /* -- Input area -- */
     .input-area {
       padding: 14px 48px 18px;
-      background: linear-gradient(180deg, #f5f6f8 0%, #eef0f2 100%);
-      border-top: 1px solid rgba(9,36,48,0.05);
+      background: #ffffff;
     }
 
     .input-bar {
       display: flex;
       align-items: center;
-      background: #ffffff;
-      border: 1px solid rgba(9,36,48,0.1);
+      background: #e8eef1;
+      border: none;
       border-radius: 28px;
       padding: 6px 6px 6px 22px;
       gap: 8px;
       max-width: 780px;
       margin: 0 auto;
-      box-shadow: 0 2px 12px rgba(9,36,48,0.06);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .input-bar:focus-within {
-      border-color: rgba(208,144,71,0.35);
-      box-shadow: 0 2px 16px rgba(208,144,71,0.1);
+      box-shadow: none;
+      transition: background 0.2s;
     }
 
     .input-bar textarea {
