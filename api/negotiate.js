@@ -198,7 +198,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages, state: clientState, strategy: reqStrategy } = req.body || {};
+  const { messages, state: clientState, strategy: reqStrategy, noReasoning } = req.body || {};
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: 'Missing messages' });
@@ -226,7 +226,7 @@ async function handler(req, res) {
       body: JSON.stringify({
         model: 'x-ai/grok-4.20-beta',
         temperature: 0,
-        reasoning: { effort: 'medium' },
+        ...(!noReasoning && { reasoning: { effort: 'medium' } }),
         messages: [
           { role: 'system', content: vcPrompt },
           ...messages,

@@ -144,7 +144,6 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: 'x-ai/grok-4.20-beta',
         temperature: 0,
-        reasoning: { effort: 'medium' },
         messages: [
           { role: 'system', content: founderPrompt },
           ...messages,
