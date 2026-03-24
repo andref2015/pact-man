@@ -1,4 +1,4 @@
-const { scoreVCTerm } = require('../shared/game-logic');
+const { scoreVCTerm } = require('../game-logic');
 
 const BASE_VC_PROMPT = `You are playing the role of a VC INVESTOR negotiating a Series A funding deal with a aerospace startup founder. You want the best deal possible.
 

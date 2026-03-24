@@ -109,6 +109,10 @@ Before starting, you choose how the AI VC negotiates:
 
 A separate AI judge (Claude Sonnet 4.6) watches the full conversation and keeps the Deal Tracker sidebar in sync — after every exchange, it figures out what each side has proposed and whether there's agreement on each term.
 
+## Benchmark
+
+The `benchmark/` directory contains an AI-vs-AI simulation mode where a second LLM plays the Founder against the VC agent. It's useful for testing negotiation behavior across styles without manually typing in text as the Founder. Access it at `http://localhost:3000/benchmark/` when running locally (or at `www.pact-man.com/benchmark`).
+
 ## Stack
 
 - **Frontend:** Plain HTML/CSS/JS — no frameworks, no build steps

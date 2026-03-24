@@ -1,4 +1,4 @@
-const { scoreFounderTerm } = require('../shared/game-logic');
+const { scoreFounderTerm } = require('../game-logic');
 
 const FOUNDER_PROMPT = `You are playing the role of a STARTUP FOUNDER negotiating a Series A funding deal with a VC investor. You are seeking a $100M investment for your aerospace startup.
 
