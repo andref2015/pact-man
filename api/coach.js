@@ -65,8 +65,9 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
     const raw = data.choices?.[0]?.message?.content || '';
 
+
     // Parse the JSON from the response
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const jsonMatch = raw.match(/\{[\s\S]*}/);
     if (!jsonMatch) {
       return res.status(502).json({ error: 'Invalid coach response' });
     }

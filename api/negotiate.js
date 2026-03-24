@@ -119,8 +119,8 @@ function calculateScores(state) {
   return { vcScore, vcNoDeal, agreedCount };
 }
 
-// --- State helpers ---
 
+// --- State helpers ---
 function defaultState() {
   return {
     terms: {
@@ -171,8 +171,8 @@ function buildStateContext(state) {
   return ctx;
 }
 
-// --- Handler ---
 
+// --- Handler ---
 module.exports = handler;
 module.exports.calculateScores = calculateScores;
 module.exports.defaultState = defaultState;
@@ -242,4 +242,4 @@ async function handler(req, res) {
     console.error('negotiate error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-};
+}
