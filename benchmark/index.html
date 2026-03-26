@@ -349,7 +349,7 @@
       border-top: 2px solid rgba(125,151,165,0.3);
       padding-top: 6px;
     }
-    .score-card .total-row td:nth-child(3) { color: #D09047; }
+    .score-card .total-row td:nth-child(3),
     .score-card .total-row td:nth-child(4) { color: #0d3040; }
 
     .score-card .stats-row td {
@@ -632,8 +632,11 @@
 
     // Stats calculation for display
     const s = globalStats[strategyKey];
-    const avgRounds = s.winRounds.length > 0
-        ? (s.winRounds.reduce((a, b) => a + b, 0) / s.winRounds.length).toFixed(1)
+    const avgRoundsRaw = s.winRounds.length > 0
+        ? s.winRounds.reduce((a, b) => a + b, 0) / s.winRounds.length
+        : null;
+    const avgRounds = avgRoundsRaw !== null
+        ? (avgRoundsRaw % 1 === 0 ? String(avgRoundsRaw) : avgRoundsRaw.toFixed(1))
         : '—';
 
     const card = document.createElement('div');
@@ -651,7 +654,7 @@
         </tr>
         <tr class="stats-row">
             <td colspan="2">Wins: <b>${s.wins}/${s.total}</b></td>
-            <td colspan="2">Avg: <b>${avgRounds} rounds</b></td>
+            ${avgRoundsRaw !== null ? `<td colspan="2">Avg: <b>${avgRounds} rounds/win</b></td>` : '<td colspan="2"></td>'}
         </tr>
       </table>
     `;

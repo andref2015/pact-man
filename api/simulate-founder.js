@@ -1,4 +1,5 @@
 const { scoreFounderTerm } = require('../game-logic');
+const { fetchWithRetry } = require('./_retry');
 
 const FOUNDER_PROMPT = `You are playing the role of a STARTUP FOUNDER negotiating a Series A funding deal with a VC investor. You are seeking a $100M investment for your aerospace startup.
 
@@ -135,7 +136,7 @@ module.exports = async function handler(req, res) {
   const founderPrompt = FOUNDER_PROMPT + buildFounderStateContext(currentState);
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

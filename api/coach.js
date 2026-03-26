@@ -1,3 +1,5 @@
+const { fetchWithRetry } = require('./_retry');
+
 const COACH_PROMPT = `You are an expert negotiation coach reviewing a practice negotiation. The human played the FOUNDER (startup seeking $100M Series A funding). The AI played the VC INVESTOR.
 
 Analyze the conversation and provide feedback to help the Founder improve their negotiation skills.
@@ -40,7 +42,7 @@ module.exports = async function handler(req, res) {
     .join('\n\n');
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

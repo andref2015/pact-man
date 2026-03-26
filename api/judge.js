@@ -1,4 +1,5 @@
 const { defaultState } = require('./negotiate');
+const { fetchWithRetry } = require('./_retry');
 
 const JUDGE_SYSTEM_PROMPT = `You are a negotiation analyst observing a Series A funding negotiation between a startup founder and a VC investor. Your job is to analyze the conversation and report the current state of each negotiation term by calling the update_negotiation_state tool.
 
@@ -86,7 +87,7 @@ function formatConversationForJudge(messages, previousState) {
 
 async function callJudge(apiKey, messages, currentState) {
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

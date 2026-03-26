@@ -1,4 +1,5 @@
 const { scoreVCTerm } = require('../game-logic');
+const { fetchWithRetry } = require('./_retry');
 
 const BASE_VC_PROMPT = `You are playing the role of a VC INVESTOR negotiating a Series A funding deal with a aerospace startup founder. You want the best deal possible.
 
@@ -217,7 +218,7 @@ async function handler(req, res) {
     const vcPrompt = module.exports.buildPrompt(currentState, strategy);
 
     // 2. Get VC reply
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
